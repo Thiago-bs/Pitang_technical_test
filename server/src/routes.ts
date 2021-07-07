@@ -1,23 +1,25 @@
 import { Router } from 'express';
-
+import {formatDate, formatHour} from '../../client/src/Util' 
 const routes = Router();
+
+var appointmentId = 1
+var patientId = 1
 var initData = [
     {
-        "datetime": "206/07/2021 10:00",
-        "amountSchedulling": 2,
+        "id": appointmentId,
+        "datetime": "06/07/2021-10:00",
+        "amountSchedulling": 1,
         "patient":[
             {
-                "name": "Thiago Borges Siqueira",
-                "age": "1997/03/27",
-                "appointment_time": "06/07/2021 10:10"
-            },
-            {
+                "id": patientId,
                 "name": "Monique Milane",
                 "age": "1997/03/22",
-                "appointment_time": "6/07/2021 10:30"
+                "appointment_time": "06/07/2021-10:30"
             }
         ],
-        "status": 0
+        "status": 0,
+        "rangeDatetime":'06/07/2021-10:00 até 06/07/2021-11:00',
+        "stringState": 'pedding'
     },
 ]
 routes.get('/schedules', function (req, res) {
@@ -25,15 +27,57 @@ routes.get('/schedules', function (req, res) {
 })
 
 routes.post('/add_appointment', function (req, res) {
-    let data
+    let data;
     if(typeof req.body === 'object'){
-      data=req.body
+      data=req.body 
     }else{
       data = JSON.parse(req.body)
     }
-    console.log(data)
+    let patient = data;
+    patient.id = patientId
+    let datetime = data.appointment_time.split(":")[0]+":00"
+
+    let dateHourMoreOne = new Date(datetime)
+    dateHourMoreOne = new Date(dateHourMoreOne.getTime() + (1*60*60*1000))
+    let dateHourMoreOneString = [formatDate(dateHourMoreOne), formatHour(dateHourMoreOne)].join('-')
+
+    let validData = true;
+    let hasAddData: boolean;
+    hasAddData = false
     
-    res.status(200).json(initData)
+    initData.forEach((element) => {
+        if(element.datetime === datetime){
+            if(element.amountSchedulling == 2){
+                validData = false
+            }
+            if(element.amountSchedulling < 2){
+                patient.id = patientId + 1
+                element.patient.push(patient)
+                element.amountSchedulling += 1
+                hasAddData = true
+                validData = true
+            }
+        }
+    });
+    if(!hasAddData && validData){
+        appointmentId+= 1
+        let appointment = {
+            id: appointmentId,
+            datetime: datetime,
+            amountSchedulling: 1,
+            patient: [patient],
+            status: 0,
+            rangeDatetime: [datetime, dateHourMoreOneString].join(' até '), 
+            stringState: 'pedding'
+        }
+        initData.push(appointment)
+        res.status(200).json({"status": true, "reason": "Consulta adicionada"})
+    }
+    if(hasAddData && validData)
+        res.status(200).json({"status": true, "reason": "Consulta adicionada"})
+    if(!validData){
+        res.status(403).json({"status": false, "reason": "Já foi marcado duas consultas para esse horario"})
+    }
 })
 
 export default routes;

@@ -32,7 +32,7 @@ export default function InputText(
                 className={styles.textField}
                 id={id}
                 value={value}
-                placeholder={'Thiago Siqueira'}
+                placeholder={'ex: Thiago Siqueira'}
                 error={error}
                 helperText={error ? helperText : ''}
                 onChange={onChange}

@@ -53,7 +53,6 @@
 
 * React com TypeScript;
 * React utilizando hooks basicos;
-* React utilizando redux;
 * NodeJS com TypeScript;
 * DOCKER para o deploy da aplicação.
 

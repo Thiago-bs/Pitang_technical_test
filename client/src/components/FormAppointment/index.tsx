@@ -3,17 +3,20 @@ import React, {useState} from 'react'
 
 import { useFormik } from 'formik';
 
-import { Container , Button, FormLabel} from '@material-ui/core'
+import { Container , Button, FormLabel, LinearProgress} from '@material-ui/core'
+
 import DatePicker from '../DatePicker'
+import SnackBarAlert from '../SnackBarAlert'
 import InputText  from '../InputText'
 
 import { useStyles } from './styles'
+
 import * as yup from 'yup'
+
 import api from '../../services/api'
+
 import Patient from '../../models/Patient'
 import {isValidDate, formatDate, formatHour} from '../../Util'
-import LinearProgress from '@material-ui/core/LinearProgress';
-
 interface Props{
     formName: string,
     isAdd: boolean
@@ -24,23 +27,35 @@ const validationSchema = yup.object({
         .string()
         .required('É Necessário adicionar o nome do paciente'),
 });
+
 export default function FormAppointment({formName, isAdd}:Props) {
     const [patientName] = useState('');
     const [ageDate] = useState<Date | null>(new Date());
     const [appointmentDate] = useState<Date | null>(new Date());
     const [appointmentHour] = useState<Date | null>(new Date());
     const [isLoading, setIsLoading] = useState(false);
-
+    const [openSnackBar, setOpenSnackBar] = React.useState(false);
+    const [messageSnackBar, setMessageSnackBar] = React.useState('');
+    const [errorSnackBar, setErrorSnackBar] = React.useState(false);
+   
     const handleSendAppointment = (patient: Patient) =>{
         setIsLoading(true)
         api.post('add_appointment', patient).then(function (response) {
             setIsLoading(false)
-            console.log(response);
+            setMessageSnackBar(response.data.reason)
+            setErrorSnackBar(false)
+            setOpenSnackBar(true)
         })
         .catch(function (error) {
             setIsLoading(false)
-            console.log(error);
+            setMessageSnackBar('Já foi marcado duas consultas para essa data e horario')
+            setErrorSnackBar(true)
+            setOpenSnackBar(true)
         });
+    }
+
+    const handleClose = () => {
+        setOpenSnackBar(false)
     }
     
     const formik = useFormik({
@@ -53,11 +68,11 @@ export default function FormAppointment({formName, isAdd}:Props) {
         validationSchema: validationSchema,
         onSubmit: (data) => {
             if(isValidDate(data.ageDate) && isValidDate(data.appointmentDate) && isValidDate(data.appointmentHour)){
-                if(data.ageDate != null && data.appointmentHour !== null){
+                if(data.ageDate != null && data.appointmentHour !== null && data.appointmentHour !== null){
                     handleSendAppointment({
                         name:data.patientName,
                         age: formatDate(data.ageDate), 
-                        appointment_time: [formatDate(data.appointmentHour), formatHour(data.appointmentHour)].join(' ')
+                        appointment_time: [formatDate(data.appointmentDate), formatHour(data.appointmentHour)].join('-')
                     } as Patient)
                 }
             }else{
@@ -114,11 +129,13 @@ export default function FormAppointment({formName, isAdd}:Props) {
                     Salvar
                 </Button>
             }
-            </form>
+                </form>
             {
                 isLoading &&
                 <LinearProgress className={styles.progress} /> 
             }
+            <SnackBarAlert open={openSnackBar} error={errorSnackBar} 
+            message={messageSnackBar} close={handleClose} />
       </Container>
     )
 }
