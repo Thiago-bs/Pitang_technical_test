@@ -7,7 +7,7 @@ import SchedulesModel from '../../models/Schedules'
 import api from '../../services/api'
 
 const columns: GridColDef[] = [
-    { field: 'rangeDatetime', headerName: 'Data e hora entre', width: 450 },
+    { field: 'rangeDatetime', headerName: 'Data e hora de atendimento', width: 450 },
     { field: 'amountSchedulling', headerName: 'Quantidade de consultas marcadas', width: 400 },
     { field: 'stringState', headerName: 'Status', width: 400 },
 ];
@@ -19,13 +19,36 @@ export default function DataTableAppointment({ handleSelected }: Props){
     const styles = useStyles() 
     const [isLoading, setIsLoading] = useState(false);
     const [pageSize, setPageSize] = useState<number>(10);
-    const [rows, setRows] = useState([]);
+    const [rows, setRows] = useState<SchedulesModel[] | []>([]);
     const handlePageSizeChange = (params: GridPageChangeParams) => {
         setPageSize(params.pageSize);
     };
+
+    const formatToSorted = (scheduleDate: string) => {
+        let ddmmyyyy = scheduleDate.split('-')[0].split('/');
+        return [ddmmyyyy[2], ddmmyyyy[1], ddmmyyyy[0], scheduleDate.split('-')[1]].join('/');
+    }
+
     async function populateDataTable(){
         await api.get('schedules').then(function (response) {
-            setRows(response.data)
+            let schedules: SchedulesModel[] = response.data
+            if(schedules.length > 0){
+                let sortedSchedules: SchedulesModel[]  = schedules.slice().sort((n1,n2) => {
+                    console.log(formatToSorted(n1.datetime) , '1')
+                    console.log(formatToSorted(n2.datetime) , '2')
+                    if (formatToSorted(n1.datetime) < formatToSorted(n2.datetime)) {
+                        return 1;
+                    }
+                    if (formatToSorted(n1.datetime) > formatToSorted(n2.datetime)) {
+                        return -1;
+                    }
+                    return 0;
+                });
+                setRows(sortedSchedules)
+            }
+            else{
+                setRows(schedules)
+            }
           }).catch(function (error) {
         });
     }

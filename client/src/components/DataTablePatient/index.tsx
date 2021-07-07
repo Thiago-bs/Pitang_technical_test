@@ -23,23 +23,30 @@ export default function DataTablePatient({handleSelected, data}: Props){
         setPageSize(params.pageSize);
     };
 
-    const formatToSorted = (stringDate: string) => {
-        let ddmmyyyy: string[] = stringDate.split('/')
-        return [ddmmyyyy[2], ddmmyyyy[1], ddmmyyyy[0]].join('/')
+    const formatToSorted = (stringAge: string) => {
+        let ddmmyyyy = stringAge.split('/');
+        return [ddmmyyyy[2], ddmmyyyy[1], ddmmyyyy[0]].join('/');
     }
     
     useEffect(() => {
         setIsLoading(true)
         setTimeout(() => {
             let patients: Patient[] = data
-            let sortPatients: Patient[] = []
-            sortPatients[0] = patients[0]
-            sortPatients[1] = patients[1]
-            if(formatToSorted(patients[0].age) < formatToSorted(patients[1].age)){
-                sortPatients[0] = patients[1]
-                sortPatients[1] = patients[0]
+            if(patients.length > 0){
+                let sortedPatient: Patient[]  = patients.slice().sort((n1,n2) => {
+                    if (formatToSorted(n1.age) > formatToSorted(n2.age)) {
+                        return 1;
+                    }
+                    if (formatToSorted(n1.age) < formatToSorted(n2.age)) {
+                        return -1;
+                    }
+                    return 0;
+                });
+                setRows(sortedPatient)
             }
-            setRows(sortPatients)
+            else{
+                setRows(patients)
+            }
             setIsLoading(false)
           }, 1000);
     }, [data]);

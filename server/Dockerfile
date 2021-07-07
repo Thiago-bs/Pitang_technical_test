@@ -1,4 +1,4 @@
-FROM node as builder
+FROM node:14.17.1 as builder
 WORKDIR '/app'
 COPY ./package.json ./
 RUN yarn install

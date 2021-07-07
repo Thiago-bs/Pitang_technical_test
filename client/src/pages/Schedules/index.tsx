@@ -17,7 +17,7 @@ export default function Schedules() {
   }
 
   const handleSelectedPatient = (patient: Patient) => {
-    alert('Edição e finalizar da consulta vai ser adicionado no futuro! \nPaciente: ' + patient.name)
+    alert('Edição e finalizar da consulta, vai ser adicionado somente no futuro! \nPaciente: ' + patient.name)
   }
 
   const handleClose = () =>{

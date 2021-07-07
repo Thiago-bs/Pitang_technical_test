@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import {formatDate, formatHour} from '../../client/src/Util' 
+import {formatDate, formatHour} from './Util' 
 const routes = Router();
 
 var appointmentId = 1
@@ -12,8 +12,8 @@ var initData = [
         "patient":[
             {
                 "id": patientId,
-                "name": "Monique Milane",
-                "age": "1997/03/22",
+                "name": "Thiago Borges",
+                "age": "1999/03/27",
                 "appointment_time": "06/07/2021-10:30"
             }
         ],
