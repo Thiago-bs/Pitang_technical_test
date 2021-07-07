@@ -56,8 +56,5 @@ if you want to access from another device on the same network, just check your I
 
 * React with TypeScript;
 * React using basic hooks;
-* React using redux;
 * NodeJS with TypeScript;
 * DOCKER for deploying the application.
-
-

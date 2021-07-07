@@ -1,7 +1,9 @@
 import  Patient  from './Patient'
-export default interface Schedules {
+
+export default interface SchedulesModel{
+    id: number,
     datetime: string,
-    amountSchedulling: number,
+    status: string,
+    amountSchedulling: number
     patient: Patient[],
-    status: number
-}
+  }
